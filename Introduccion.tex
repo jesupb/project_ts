@@ -119,8 +119,110 @@ Esta observaci\'on  respecto a la inconsistencia de $I(\omega)$ es la motivaci\'
 \end{definition}
 
 %%%
+\section{Suavizamiento del estimador de densidad espectral}
+
+Como se vio en la secci\'on anterior, el estimador $I(\omega)$ de la densidad espectral no es consistente, por lo que muestra alta variabilidad. Para evitar esto, existen t\'ecnicas que disminuyen esa variabilidad bajo el costo de aumentar el sesgo del estimador.
+
+En esta secci\'on se muestra con detalle c\'omo se logra esto mediante el suavizador de \textit{Daniell}, y se exploran en la pr\'actica otras t\'ecnicas como los \textit{kernels} de Daniell modificado, Dirichlet y Fejer.
+
+\subsection{Idea general}
+
+La idea general de los suavizadores consiste en ponderar las frecuencias alrededor de una frecuencia meta. El grado del suavizamiento depende entonces de dos aspectos principales:
+
+\begin{itemize}
+\item[$\bullet$] La cantidad $L = 2m+1$ de frecuencias circundantes utilizadas para generar el estimador suavizado.
+\item[$\bullet$] Los pesos asignados a las frecuencias circundantes.
+\end{itemize}
+
+Los diferentes m\'etodos difieren b\'asicamente en la forma en que se asignan esos pesos.
+
+\begin{definition}{Spectral window} % traduccion de esta wea??
+\\[0.25cm]\noindent Una \textit{spectral window} es una funci\'on $W_m(\cdot)$ sobre las densidades de Fourier tal que 
+$$
+\left\{\begin{matrix}
+W_m(k) \geq 0\\ 
+W_m(k) = W_m(-k)\\ 
+\sum_{k = -m}^{m} W_m(k) = 1
+\end{matrix}\right.
+$$
+\end{definition}
+
+Bajo este concepto se puede describir cualquier m\'etodo de suavizamiento mediante
+
+$$
+\bar{f}(\omega) = \sum_{k = -m}^{m} W_m(k) I(\omega + k/n)
+$$
+
+Existe literatura en la que la descripci\'on anterior se hace en funci\'on de \textit{bandas}, de forma que se define una banda $B$ con $L$ elementos mediante
+
+$$
+B = \{\omega^{*}: \omega_j - m/n \leq \omega^{*} \leq \omega_j + m/n\}
+$$
+
+y se define su \textit{ancho de banda} por $B_w  = L/n$.
+
+Bajo el esquema anterior, se define el suavizador de \textit{Daniell}:
+
+\begin{definition}{Suavizador de \textit{Daniell}}
+\\[0.25cm]\noindent El suavizador de Daniell est\'a descrito por
+$$
+W_m(k) = \fac{1}{2m+1} = 1/L
+$$
+\end{definition}
+
+Ahora se detalla en la manera en que el suavizamiento contribuye a crear un estimador consistente a cambio de incorporar algo de sesgo:
+
+En primer lugar, se tiene que a partir de los resultados asint\'oticos de la secci\'on anterior y aproximando por Taylor:
+\begin{eqnarray*}
+E[\bar{f}(\omega)] & \approx & \sum_{k = -m}^{m} W_m(k) f(\omega + k/n) \\
+ & \approx & \sum_{k = -m}^{m} W_m(k) [f(\omega) + \frac{k}{n} f'(\omega) + \frac{1}{2}\left(\frac{k}{n}\right)^2 f''(\omega)
+\end{eqnarray*}
+
+Por la simetr\'ia de los pesos $W_m(k)$ se cancelan los t\'erminos asociados a $f'$ y resulta
+
+$$
+E[\bar{f}(\omega)] \approx f(\omega) + \frac{1}{n^2} \frac{f''(\omega)}{2} \sum_{k = -m}^{m} k^2 W_m(k)
+$$
+
+por lo que el sesgo del estimador est\'a dado aproximadamente por
+
+$$
+\frac{1}{n^2} \frac{f''(\omega)}{2} \sum_{k = -m}^{m} k^2 W_m(k)
+$$
+
+Note que para el caso de Daniell, esto es proporcional a
+
+$$
+\frac{1}{n^2} \sum_{k = -m}^{m} k^2 W_m(k) = \frac{1}{n^2} \sum_{k = -m}^{m} \frac{k^2}{2m+1} = \frac{2}{n^2(2m+1)} \left( \frac{m^3}{3} + \frac{m^2}{2} + \frac{m}{6} \right)
+$$
+
+que tiende a 0 en tanto $n \rightarrow 0$ y $m/n \rightarrow 0$.
+
+Por el otro lado, para la varianza se tiene la aproximaci\'on
+
+$$
+var(\bar{f}(\omega) \approx \sum_{k = -m}^{m} W_m^{2}(k) f^{2}(\omega)
+$$
+
+y en el caso de Daniell se tiene que como los pesos son uniformes, entonces
+
+$$
+\sum_{k = -m}^{m} W_m^{2}(k) = \frac{1}{2m+1}
+$$
+
+Note que esto tiende a 0 en tanto $m \rightarrow 0$.
+
+En resumen, para disminuir la varianza se requiere utilizar cada vez m\'as observaciones para el suavizamiento, y para mantener el sesgo controlado se requiere que $m$ sea peque\~no respecto a $n$.
+
+
+\subsection{Otros m\'etodos de suavizamiento}
+
+Una forma alternativa de describir los m\'etodos de suavizamiento es utilizando conocimiento respecto a la funci\'on de autocovarianza de la serie. Para estos m\'etodos se define funci\'on \textit{lag window}:
 
 
 
+Se mencionaran unos cu\'antos m\'etodos adicionales usuales en la literatura y de uso com\'un en las implementaciones de \textit{software}:
 
+\begin{itemize}
 
+\end{itemize}
