@@ -1,0 +1,222 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage[latin1]{inputenc}
+\usepackage[spanish,english]{babel}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{pifont}
+\usepackage{xy}
+\usepackage[table]{xcolor}
+\usepackage{colortbl}
+\usepackage{url}
+\usepackage{array}
+\usepackage{subfigure}
+\usepackage{multirow}
+\usepackage{color,hyperref}
+\usepackage{multicol}
+\usepackage{mathrsfs}
+\usepackage[left=2cm, right=2.2cm,height=25cm]{geometry}
+\linespread{1.2}
+
+
+%comando para par�ntesis ajustables
+\newcommand{\bc}[1]{
+\left(#1\right) }
+
+\newcommand{\cbg}[1]{
+\multicolumn{1}{|>{\columncolor[rgb]{0.8, 0.8, 0.8}}c|}{#1} }
+
+\newcommand{\tdots}{
+ \cdot \cdot \cdot
+}
+
+\makeatletter
+\newcommand{\mypm}{\mathbin{\mathpalette\@mypm\relax}}
+\newcommand{\@mypm}[2]{\ooalign{%
+  \raisebox{.1\height}{$#1+$}\cr
+  \smash{\raisebox{-.6\height}{$#1-$}}\cr}}
+\makeatother
+
+
+
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+
+\begin{document}�
+\renewcommand{\figurename}{Figura}
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\labelenumi}{\Roman{enumi}.}
+\renewcommand{\labelenumii}{\arabic{enumii}$)$}
+\renewcommand{\labelenumiii}{\alph{enumiii}$)$}
+\thispagestyle{fancy}
+\lhead{
+    \textsc{\textbf{UNIVERSIDAD DE COSTA RICA\\
+    Escuela de Matem\'atica\\
+	Profesor: Luis Barboza Chinchilla\\
+	Estudiantes: C\'esar Conejo, Evelyn Guzm\'an\\
+	Jes\'us Pacheco, Mercedes Alpizar}}}
+    
+\rhead{
+    \textsc{\textbf{I CICLO 2017\\
+    MA-0817 Estad\'istica Matem\'atica}
+}}
+
+\begin{center}
+\textbf{Anteproyecto}
+\end{center}
+
+\begin{center}
+{\em Tema: An\'alisis espectral no par\'ametrico}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Objetivos}
+	
+	\subsection{Objetivo General}
+	\begin{itemize}
+		\item Profundizar en la teor\'ia del an\'alisis espectral no param\'etrico as\'i como sus aplicaciones en series de tiempo.
+	\end{itemize}
+	\subsection{Objetivos Espec\'ificos}
+\begin{enumerate}
+	\item Repasar los conceptos esenciales de la teor\'ia del an\'alisis espectral como an\'alisis de Fourier,  el periodograma, la densidad espectral y otros.
+	 
+	\item Investigar para qu\'e tipo de series de tiempo el an\'alisis espectral es una herramienta fundamental.
+	
+	\item Utilizar el programa estad\'istico \texttt{R} para filtrar la serie de las temperaturas m\'aximas de Liberia, utilizado la teor\'ia de an\'alisis espectral. 
+
+\end{enumerate}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Aspectos Te\'oricos}
+	
+\noindent El punto de partida del an\'alisis espectral es que cualquier proceso estacionario se puede representar mediante una combinaci\'on lineal de senos y cosenos (o exponenciales complejas); es decir, $X_{t}$ con $t = 0, \mypm 1, \mypm 2,...,$ se puede expresar aproximadamente de la siguiente forma:
+	
+\begin{equation}\label{e1}
+ X_t = \sum_{j = 1}^{q}[U_{j1} \cos(2\pi \omega_{j} t) +  U_{j2} \sin(2\pi \omega_{j} t)]
+\end{equation}
+	
+\noindent donde $U_{k1}$, $U_{k2}$ para $k = 1,2,...,q$ son variable aleatorias con media cero y varianza $\sigma_{k}^{2}$ y $\omega_{j} = \frac{j}{n}$ son los ciclos\footnote{M\'as adelante las conoceremos como frecuencias de Fourier.} por unidad de tiempo. Lo anterior se conoce como la representaci\'on espectral del proceso $x_{t}$. De manera an\'aloga, podemos definir la descomposici\'on de frecuencias de la funci\'on de autocovarianza. Para esto, suponga que $X_t$ es un proceso estacionario con funci\'on de autocovarianza $\gamma(\cdot)$ que satisface $\sum_{-\infty}^\infty |\gamma(h)| < \infty $. Entonces para $-1/2 \leq \omega \leq 1/2$ la densidad espectral se define como:
+
+\begin{equation}\label{e2}	
+f(\omega)= \sum_{-\infty}^\infty |\gamma(h)| e^{-2\pi i \omega h}
+\end{equation}
+
+\noindent La ecuaci\'on (\ref{e2}) cumple ser peri\'odica, par y su funci\'on de autocovarianza se puede escribir en el dominio de frecuencias como:
+	
+$$\gamma(h)=\int_{-1/2}^{1/2} e^{2 \pi ih\omega}f(\omega) d\omega = \int_{-1/2}^{1/2} \cos{2 \pi h\omega}f(\omega) d\omega$$
+
+\noindent As\'i mismo, para aproximar la densidad espectral a partir de las observaciones $x_1, ..., x_n$  utilizamos el peridograma el cual utiliza la transformada discreta de Fourier definida como:
+
+$$d(\omega_j)=n^{-1/2} \sum_{t=1}^n x_t e^{2 \pi i \omega_j t}$$
+	
+\noindent La cual nos permite definir el periodograma de la siguiente manera:
+
+$$I(\omega_j)= |d(\omega_j)|^2$$
+
+\noindent Tambi\'en, podemos escribir el periodograma utilizando el ACF emp\'irico $I(\omega_j)=\sum_{|h|<n} \hat{\gamma}(h) e^{-2 \pi i \omega_j h}$.
+
+\subsection{An\'alisis no param\'etrico}
+
+\noindent Queremos encontrar la frecuencia de inter\'es $\omega$, por lo que se considera $f(\omega) \approx f(w_j + k/n)$ con $k<|m|$ en un intervalo $\mathcal{B}$ conocido como banda de frecuencia. De esta manera se define el estimador promedio discreto\footnote{El cual cumple la condici\'on de ser consistente.} de la densidad espectral como:
+
+\begin{equation}\label{e3}
+\hat{f}(\omega)= \sum_{k<|m|} h_k I(\omega_j +k/n)
+\end{equation}
+
+\noindent Donde los pesos $h_k$ cumplen ser positivos, suman 1 y cuando $n \rightarrow \infty$ se tiene que $\sum_{k<|m|} h_k^2 \rightarrow 0$. Para finalizar, definimos los estimadores de la ventana lag del espectro. Para ello rexpresamos la expresi\'on (\ref{e3}) como:
+
+$$ \hat{f}(\omega)=  \displaystyle{\sum_{h \leq |r|} \omega(h/r) \hat{\gamma}(h)e^{-2 \pi i \omega h} }$$
+
+\noindent donde $\omega(\cdot)$ corresponde a una func\'on de pesos denominada ventana lag. Adem\'as definimos la ventana de suavizamiento como:
+
+$$ W(\omega)=  \displaystyle{\sum_{h \leq |r|} \omega(h/r)e^{-2 \pi i \omega h} }$$
+
+\noindent la cual determina cual parte del periodograma  ser\'a utilizada para estimar $f(\omega)$. Hay varias propuestas tanto para $\omega(\cdot)$ como $W(\omega)$ las cuales se explorar\'an en el trabajo tales como Bartlett, Daniell, Turkey-Hanning, Parzen.
+
+\section{Descripci\'on de datos}
+	
+\noindent Los datos corresponden a las temperaturas m\'aximas diarias, observadas en la Ciudad de Liberia desde el 1 enero del 2011 hasta el 30 de diciembre del 2015.
+	
+\noindent Fuente de los datos: 
+\textcolor{blue}{\href{https://datamarket.com/data/set/4lqc/weather-measurements-from-the-global-historical-climatology-network-daily\#!ds=4lqc!7v8s=2l6:7v8t=1&display=line}{\textbf{National Oceanic and Atmospheric Administration}}}
+
+\section{PPT}
+
+La idea fundamental sobre el que descansa el presente trabajo es partir del echo de que el concepto de regularidad de una serie de tiempo puede ser mejor expresado en terminos de las variaciones periodicas del fen\'omeno que produce la serie, expresada como frecuencias de Fourier a trav\'es de senos y cosenos. En an\'alisis espectral se centra en el dominio de frecuencias.
+
+La frecuencia est\'a medida en ciclos por unidad de tiempo.
+
+\begin{definition}{Transformada discreta de Fourier (TDF)}
+\\[0.25cm]\noindent Definimos la TDF de $(x_{1}, ..., x_{t})$ como:
+$$d(\omega_j)=n^{-1/2} \sum_{t=1}^n x_t e^{2 \pi i \omega_j t}$$
+\noindent para $j = 0,1,..., n - 1$
+\end{definition}
+
+
+\begin{definition}{Periodograma}
+\\[0.25cm]\noindent Dados los datos $x_{1}, ..., x_{n}$, se define el periodograma como:
+$$I(\omega_j)= |d(\omega_j)|^2$$
+\noindent para $j = 0,1,..., n - 1$
+\end{definition}
+
+\noindent En este sentido se tienen representaciones {\em backward} y {\em Forward} para desplazarnos entre el an\'alisis temporal (Funci\'on de autocovarianza muestral) y el an\'alisis de frecuencias. De esta forma asumiendo datos centrados tenemos que:
+
+\begin{equation}
+I(\omega_j)=\sum_{|h|<n} \hat{\gamma}(h) e^{-2 \pi i \omega_j h}
+\end{equation}
+
+\noindent Donde $I(\omega_j)$ es la versi\'on muestral del poder de espectro $\gamma _{0}f(\omega_j)$.
+
+\begin{center}
+Propiedades del periodograma
+\end{center}
+
+\begin{itemize}
+\item[1)] Caso: Ruido blanco
+
+Sea $X_t$ un ruido blanco gaussiano con media 0 y varianza $\sigma^2$. 
+Aplicando la DFT se tiene que para cada frecuencia $\omega$ el valor en el periodograma es
+$$
+I(\omega) = \frac{2}{n} [(\sum_{t = 1}^{n} X_t cos(2\pi \omega))^2 + (\sum_{t = 1}^{n} X_t sin(2\pi \omega))^2]
+$$
+
+Note que
+
+$$
+\hat{A}_{\omega} = \frac{2}{n} \sum_{t = 1}^{n} X_t \;cos(2\pi \omega)
+$$
+
+y 
+
+$$
+\hat{B}_{\omega} = \frac{2}{n} \sum_{t = 1}^{n} X_t \;sin(2\pi \omega)
+$$
+
+son combinaciones lineales de variables normales, por lo que son a su vez normales. Cada uno tiene media 0 y varianza $\frac{2\gamma_0}{n}$. Elevadas al cuadrado tienen distribuci\'on chi cuadrado. 
+
+Recuerde que $S(f) = \gamma_0$ para el caso del ruido blanco, por lo que vale
+
+$$
+\frac{2 I(\omega)}{f(\omega)} = \frac{n}{2\gamma_0} [\hat{A}_{\omega}^{2} + \hat{B}_{\omega}^{2}]
+$$
+
+Aplicando esperanzas a ambos lados y multiplicando por $f(\omega)$ se obtiene que $E[I(\omega)] = f(\omega)$, por lo que el periodograma es un estimador insesgado.
+
+Asimismo, aplicando varianza a ambos lados se deduce que $var(I(\omega)) = f^2(\omega)$. Note que no se satisface que conforme $n$ tiende a infinito entonces $var(I(\omega)) \rightarrow 0$, por lo que el estimador no es consistente.
+
+% GENERAL
+%
+%
+
+Lo anterior revela que el periodograma es un estimador muy vol\'atil, por lo que se exploran m\'etodos para estabilizarlo.
+
+
+
+
+\end{itemize}
+
+\end{document}

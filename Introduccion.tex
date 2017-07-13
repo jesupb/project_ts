@@ -1,0 +1,126 @@
+La idea fundamental sobre el que descansa el presente trabajo es partir del hecho de que el concepto de regularidad de una serie de tiempo puede ser mejor expresado en terminos de las variaciones periodicas del fen\'omeno que produce la serie, expresada como frecuencias de Fourier a trav\'es de senos y cosenos. En an\'alisis espectral se centra en el dominio de frecuencias.
+
+La frecuencia est\'a medida en ciclos por unidad de tiempo.
+
+\begin{definition}{Transformada discreta de Fourier (TDF)}
+\\[0.25cm]\noindent Definimos la TDF de $(x_{1}, ..., x_{t})$ como:
+$$d(\omega_j)=n^{-1/2} \sum_{t=1}^n x_t e^{2 \pi i \omega_j t}$$
+\noindent para $j = 0,1,..., n - 1$
+\end{definition}
+
+
+\begin{definition}{Periodograma}
+\\[0.25cm]\noindent Dados los datos $x_{1}, ..., x_{n}$, se define el periodograma como:
+$$I(\omega_j)= |d(\omega_j)|^2$$
+\noindent para $j = 0,1,..., n - 1$
+\end{definition}
+
+\noindent En este sentido se tienen representaciones {\em backward} y {\em Forward} para desplazarnos entre el an\'alisis temporal (Funci\'on de autocovarianza muestral) y el an\'alisis de frecuencias. De esta forma asumiendo datos centrados tenemos que:
+
+\begin{equation}
+I(\omega_j)=\sum_{|h|<n} \hat{\gamma}(h) e^{-2 \pi i \omega_j h}
+\end{equation}
+
+\noindent Donde $I(\omega_j)$ es la versi\'on muestral del poder de espectro $\gamma _{0}f(\omega_j)$.
+
+\begin{center}
+Propiedades asint\'oticas del periodograma
+\end{center}
+
+%%% PROP 1
+\begin{definition}{Propiedad 1}
+\\[0.25cm]\noindent Para muestras grandes el periodograma converge en distribuci\'on a la densidad espectral:
+$$
+E[I(\omega_{j:n})] \leftarrow f(\omega)
+$$
+\end{definition}
+
+%%% PROP 2
+\begin{definition}{Propiedad 2}
+\\[0.25cm]\noindent Dado que $x_t$ es un proceso lineal con par\'ametros $\psi_j$ sumables vale que
+$$
+\frac{2\;I(\omega_{j:n})}{f(\omega_j)} \overset{d}{\leftarrow} \textup{iid} \chi^{2}_{2}
+$$
+\end{definition}
+
+Lo anterior permite derivar intervalos de confianza para los valores calculados del periodograma en cada frecuencia de Fourier.
+
+%% ejm
+\begin{definition}{Ejemplo 1}
+\\[0.25cm]\noindent Ahora se muestra un ejemplo sencillo sobre la distribuci\'on del periodograma del ruido blanco normal.
+
+Se sabe de la definici\'on que $I(\omega) = \hat{\gamma}(0)$.
+
+De igual manera, $f(\omega) = \gamma(0)$, para cualquier $\omega$. %, pues el ruido blanco excita a todas las frecuencias por igual
+
+Se estudiar\'a la distribuci\'on de $\frac{2\;I(\omega)}{f(\omega)}$, para $\omega$ fijo.
+
+Si se denota la parte real de la transformaci\'on de Fourier por $d_c(\omega)$ y la parte imaginaria por $d_s(\omega)$, entonces vale que 
+
+$$
+d(\omega) = d_c(\omega) + i\;d_s(\omega)
+$$
+
+$$
+|d(\omega)|^2 = (d_{c}(\omega))^{2} + (d_{s}(\omega))^2
+$$
+
+En el caso del ruido blanco normal, se tiene que como  
+
+$$
+d_c(\omega) = n^{-1/2} \sum_{t} x_t \cos(2\pi \omega t)
+$$
+
+y cada $x_t$ es normal, $d_c(\omega)$ es combinaci\'on lineal de normales, por lo que es tambi\'en normal con media $0$ y varianza $gamma(0) / 2$. Para $d_s(\omega)$ vale un resultado an\'alogo.
+
+De esta manera, las variables
+
+$$
+\frac{2\;(d_c(\omega))^2}{\gamma(0)}
+$$
+
+y
+
+$$
+\frac{2\;(d_s^(\omega))^2}{\gamma(0)}
+$$
+
+tienen distribuci\'on chi cuadrado con un grado de libertad, por lo que su suma (\textit{i.e.} $\frac{2}{\gamma(0)}|d(\omega)|^2$) distribuye chi cuadrado con 2 grados de libertad.
+
+De lo anterior se deduce que 
+
+$$
+2 \frac{I(\omega)}{f(\omega)} 
+$$
+
+tiene distribuci\'on chi cuadrado con 2 grados de libertad, por lo que se tiene
+
+$$
+E\left[ 2 \frac{I(\omega)}{f(\omega)}  \right] = 2 \longrightarrow E[I(\omega)] = f(\omega)
+$$
+
+y adem\'as
+
+$$
+var\left(2 \frac{I(\omega)}{f(\omega)}\right) = 4 \longrightarrow var(I(\omega)) = f^2(\omega)
+$$
+
+De este segundo resultado se puede identificar que para este ejemplo el estimador $I(\omega)$ de $f(\omega)$ es insesgado, pero \textit{no es un estimador consistente}, pues su varianza no importa el tamaño de muestra, por lo que la estimaci\'on de $f(\omega)$ nunca va a mejorar por m\'as observaciones que se incluyan.
+
+Lo anterior se debe a que conforme aumenta el tamaño de muestra, tambi\'en la cantidad de frecuencias de Fourier aumenta, por lo que la informaci\'on que se agrega al modelo mediante un tamaño de muestra mayor queda "diluida" ante la mayor cantidad de par\'ametros que se deben calcular para cada frecuencia.
+
+Esta observaci\'on  respecto a la inconsistencia de $I(\omega)$ es la motivaci\'on para explorar los m\'etodos de la secci\'on siguiente.
+
+\end{definition}
+
+%% ejm 2
+\begin{definition}{Ejemplo sobre intervalos de confianza}
+\\[0.25cm]\noindent
+\end{definition}
+
+%%%
+
+
+
+
+
