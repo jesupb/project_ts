@@ -1,0 +1,387 @@
+---
+title: "Análisis Espectral No Paramétrico"
+subtitle: "Curso: Series de tiempo y Modelos de Espacio-Estado"
+author: "Evelyn Guzmán, César Conejo, Jesús Pacheco, Mercedes Alpízar"
+output:
+  ioslides_presentation: default
+ # footer: "Universidad de Costa Rica"
+  fig_caption: yes
+ # slidy_presentation: default
+---
+
+
+
+```{r setup, include=FALSE, eval=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r, echo=FALSE}
+#paquetes
+suppressMessages(suppressWarnings(library(data.table)))
+suppressMessages(suppressWarnings(library(timeSeries)))
+suppressMessages(suppressWarnings(library(zoo)))
+suppressMessages(suppressWarnings(library(dygraphs)))
+suppressMessages(suppressWarnings(library(dplyr)))
+suppressMessages(suppressWarnings(library(knitr)))
+suppressMessages(suppressWarnings(library(reshape2)))
+suppressMessages(suppressWarnings(library(ggplot2)))
+```
+
+
+```{r, echo=FALSE}
+#datos y transformacion
+
+temp<-read.csv("max_temp.csv",sep=";",dec = ".", header = TRUE, col.names = c("Fecha","Liberia"))
+  
+temp$Fecha<-as.Date(temp$Fecha)
+
+#completar los datos
+for (i in 2:dim(temp)[1]-2)
+  {
+  temp$Liberia[i][is.na(temp$Liberia[i])]<-
+    (temp$Liberia[i-1]+(temp$Liberia[i+1][is.na(temp$Liberia[i+1])]<-temp$Liberia[i+2]))/2
+  }
+
+temp$Liberia<-substituteNA(temp$Liberia,type="median")
+
+
+#Serie
+temp.ts<-zoo(temp$Liberia, temp$Fecha)
+temp.ts2<-ts(temp$Liberia) #para el periograma tiene que estar en este formato
+
+```
+
+
+#Objetivos 
+
+##Objetivo General
+
+Profundizar en la teoría del análisis espectral no paramétrico así como sus aplicaciones en series de tiempo.
+
+##Objetivos específicos
+
+- Repasar los conceptos esenciales de la teoría del análisis espectral como análisis de Fourier,  el periodograma, la densidad espectral y otros.
+	 
+- 
+	
+- Utilizar el programa estadístico R para filtrar la serie de las temperaturas máximas de Liberia, utilizado la teoría de análisis espectral. 
+
+
+##Marco Teórico
+
+Cualquier proceso estacionario se puede representar mediante una combinación lineal de senos y cosenos se puede expresar aproximadamente de la siguiente forma:
+	
+ $$X_t = \sum_{j = 1}^{q}[U_{j1} \cos(2\pi \omega_{j} t) +  U_{j2} \sin(2\pi\omega_{j} t)]$$
+
+Donde $U_{k1}$, $U_{k2}$ para $k = 1,2,...,q$ son variable aleatorias con media cero y varianza $\sigma_{k}^{2}$ y $\omega_{j} = \frac{j}{n}$ son los ciclos. 
+
+
+##Datos
+Serie: Temperaturas máximas diarias reportadas en Liberia entre el 2011 y 2014. *National Oceanic and Atmospheric Administration*
+
+```{r, echo=FALSE, fig.height=4, fig.width=7, fig.align="center"}
+#Grafico general
+
+dygraph(temp.ts, main="Temperatura máxima en Liberia (diaria)") %>%
+  dyAxis("y",label = "Temperatura (C)") %>%
+  dySeries("V1", label = "Grados (C)")%>%
+dyLegend(show = "always", hideOnMouseOut = FALSE)
+
+```
+
+
+#Estimación espectral no paramétrica
+
+## Densidad espectral
+
+De manera análoga, podemos definir la descomposición de frecuencias de la función de autocovarianza. 
+Para esto, suponga que $X_t$ es un proceso estacionario con función de autocovarianza $\gamma(\cdot)$ que satisface $\sum_{-\infty}^\infty |\gamma(h)| < \infty $. Entonces para $-1/2 \leq \omega \leq 1/2$ la densidad espectral se define como:
+
+	
+$$f(\omega)= \sum_{-\infty}^\infty |\gamma(h)| e^{-2\pi i \omega h}$$
+
+
+
+## El periodograma
+
+Definimos la transformada discreta de Fourier (TDF) de $(x_{1}, ..., x_{t})$ como:
+$$d(\omega_j)=n^{-1/2} \sum_{t=1}^n x_t e^{2 \pi i \omega_j t}$$
+para $j = 0,1,..., n - 1$
+
+
+
+ Y, para el conjunto de datos $x_{1}, ..., x_{n}$, se define el periodograma como:
+$$I(\omega_j)= |d(\omega_j)|^2$$
+\noindent para $j = 0,1,..., n - 1$
+
+## El Periodograma
+
+$$I(\omega_j)=\sum_{|h|<n} \hat{\gamma}(h) e^{-2 \pi i \omega_j h}$$
+
+
+\noindent Donde $I(\omega_j)$ es la versión muestral del poder de espectro $\gamma _{0}f(\omega_j)$.
+
+- Estimador espectral
+- Descubrir los componentes periódicos de la serie
+
+## El Periodograma
+```{r, echo=FALSE}
+n=length(temp.ts)
+P = abs(2*fft(temp.ts2)/n)^2; Fr = 0:(n-1)/n
+ plot(Fr, P, type="l", xlab="frequency", ylab="periodogram",xlim=c(0,0.02), ylim=c(0,500))
+ 
+ orden<-order(P,Fr,decreasing = TRUE)[1:5]
+ 
+```
+
+
+
+## El Periodograma
+
+```{r, echo=FALSE, fig.align="center"}
+
+par(mfrow=c(1,2))
+per_Liberia<-spec.pgram(temp.ts2, log = "no", main="Peridiograma")
+spec.pgram(temp.ts2, log = "no", xlim=c(0,0.02), main="Zoom")
+
+##frecuencias
+orden<-order(per_Liberia$spec,per_Liberia$freq,decreasing = TRUE)[1:5]
+```
+
+## El Periodograma
+
+```{r, echo=FALSE, fig.height=5, fig.width=6, fig.align="center"}
+
+#las frecuencias con los mayores espectros
+freq11<-per_Liberia$freq[orden[1]]
+freq12<-per_Liberia$freq[orden[2]]
+freq13<-per_Liberia$freq[orden[3]]
+freq14<-per_Liberia$freq[orden[4]]
+freq15<-per_Liberia$freq[orden[5]]
+
+spec.pgram(temp.ts2, log = "no", xlim=c(0,0.02), main=" ")
+
+abline(v=freq11, lty="dotted",col="red")
+abline(v=freq12, lty="dotted",col="green")
+abline(v=freq13, lty="dotted",col="blue")
+abline(v=freq14, lty="dotted",col="yellow")
+abline(v=freq15, lty="dotted",col="orange")
+
+```
+
+## El Periodograma
+
+```{r, echo=FALSE, fig.height=3, fig.width=5}
+
+#tabla
+DF2<-data.frame(Frecuencia=signif(per_Liberia$freq[orden],3), Periodo=1/per_Liberia$freq[orden], Poder=per_Liberia$spec[orden])
+kable(DF2)
+
+
+```
+
+
+##Propiedades Asintóticas
+
+
+Para muestras grandes el periodograma converge en distribución a la densidad espectral:
+$$E[I(\omega_{j:n})] \leftarrow f(\omega)$$
+Dado que $x_t$ es un proceso lineal con parámetros $\psi_j$ sumables, se tiene que
+$$\frac{2\;I(\omega_{j:n})}{f(\omega_j)} \overset{d}{\longrightarrow} \chi^{2}_{2}$$
+
+## Suavizado del periodograma
+
+
+La idea general de los suavizadores consiste en ponderar las frecuencias alrededor de una frecuencia meta. El grado del suavizamiento depende entonces de dos aspectos principales:
+
+ -La cantidad $L = 2m+1$ de frecuencias circundantes utilizadas para generar el estimador suavizado.
+ 
+ -Los pesos asignados a las frecuencias circundantes.
+
+##Suavizado del periodograma
+
+
+ Una \textit{spectral window} es una función $W_m(\cdot)$ sobre las densidades de Fourier tal que: 
+$$
+\left\{\begin{matrix}
+W_m(k) \geq 0\\ 
+W_m(k) = W_m(-k)\\ 
+\sum_{k = -m}^{m} W_m(k) = 1
+\end{matrix}\right.
+$$
+
+
+Bajo este concepto se puede describir cualquier método de suavizamiento mediante
+
+$$
+\bar{f}(\omega) = \sum_{k = -m}^{m} W_m(k) I(\omega + k/n)
+$$
+
+## Suavizamiento del periodograma 
+
+Existe literatura en la que la descripción anterior se hace en función de \textit{bandas}, de forma que se define una banda $B$ con $L$ elementos mediante
+
+$$
+B = \{\omega^{*}: \omega_j - m/n \leq \omega^{*} \leq \omega_j + m/n\}
+$$
+
+y se define su \textit{ancho de banda} por $B_w  = L/n$.
+
+
+
+##Suavizado del peridiograma
+
+```{r, echo=FALSE}
+#Esto lo hice pensando en el ejercicio que hace el Shumway pero al final
+#no estaba segura si dejarlo o no o en què momento ponerlo.
+#ahì ven.
+
+#Intevalo de confianza 
+df=per_Liberia$df
+L=qchisq(0.975, df)
+U=qchisq(0.025, df)
+
+#tabla
+DF<-data.frame(Freq=signif(per_Liberia$freq[orden],3), Lower=df*per_Liberia$spec[orden]/L,Upper=df*per_Liberia$spec[orden]/U, Power=per_Liberia$spec[orden])
+kable(DF)
+
+```
+
+##Suavizado del peridiograma 
+
+```{r, echo=FALSE}
+ hist(per_Liberia$spec, main="Histograma del poder del espectro", xlim=c(0,100), breaks =50 )
+
+#Con un 97.5% de confianza, el espectro de 1/216 est´á en medio de esos valores
+```
+
+##Método de Daniell
+
+El suavizador de Daniell está descrito por
+$$W_m(k) = \frac{1}{2m+1} = 1/L$$
+
+
+```{r, echo=FALSE, fig.align="center"}
+#Daniel
+ 
+par(mfrow=c(1,3))
+ k = kernel("daniell", 4, "Daniell m=4") #m=4
+suppressWarnings(spec.pgram(temp.ts2, k, main="Daniell m=4"))
+k = kernel("daniell", c(4,4))
+suppressWarnings(spec.pgram(temp.ts2, k, main="Daniell m=4"))
+k = kernel("daniell", c(9,9,9))
+suppressWarnings(spec.pgram(temp.ts2, k))
+
+```
+
+##Suavizado del peridiograma
+```{r, echo=FALSE}
+
+periodo.a <- rev(c(1/6, 1/5, 1/4, 1/3, 0.5, 1, 3, 5, 10, 100))
+Anios.frac <- rev(c("1/6", "1/5", "1/4", "1/3", "1/2", "1", "3", "5", "10", 
+    "100"))
+Frec.anual <- 1/periodo.a * 1/12
+
+spec.df <- data.frame(Frecuencia = per_Liberia$freq, `c(9,9,9)` = per_Liberia$spec)
+names(spec.df) <- c("Frecuencia", "Sin Daniel")
+
+k <- kernel("daniell", c(4))
+spec.df[, "c(4)"] <- spec.pgram(temp.ts2, kernel = k, taper = 0, plot = FALSE)$spec
+k <- kernel("daniell", c(4, 4))
+spec.df[, "c(4,4)"] <- spec.pgram(temp.ts2, kernel = k, taper = 0, plot = FALSE)$spec
+k <- kernel("daniell", c(4,4,4))
+spec.df[, "c(4,4,4)"] <- spec.pgram(temp.ts2, kernel = k, taper = 0, plot = FALSE)$spec
+
+suppressWarnings(suppressMessages(
+  spec.df <- melt(spec.df, id.vars = "Frecuencia", value.name = "Poder", variable.name = "Kernel")
+))
+
+ggplot(data = subset(spec.df)) + 
+  geom_path(aes(x = Frecuencia, y = Poder, color = Kernel)) + 
+  scale_x_continuous("Periodo (anual)", breaks = Frec.anual, labels = Anios.frac)+
+  scale_y_log10()
+
+```
+
+
+##Suavizado del peridiograma: Otros métodos
+
+```{r, echo=FALSE, fig.align="center"}
+
+# otros métodos
+ 
+ par(mfrow=c(1,3))
+ 
+  k = kernel("modified.daniell", 4)
+ suppressWarnings(spec.pgram(temp.ts2, k, main=" Daniell Modificado"))
+ 
+ k = kernel("dirichlet", 4, r=3)
+ suppressWarnings(spec.pgram(temp.ts2, k, main="Dirichlet"))
+ 
+ k = kernel("fejer", 4, r=3)
+ suppressWarnings(spec.pgram(temp.ts2, k, main="Fejér"))
+
+
+
+
+```
+
+
+```{r, echo=FALSE}
+n<-length(temp.ts2)
+
+c11 <- cos(2*pi*1:n*freq11)
+s11 <- sin(2*pi*1:n*freq11)
+c12 <- cos(2*pi*1:n*freq12)
+s12 <- sin(2*pi*1:n*freq12)
+c13 <- cos(2*pi*1:n*freq13)
+s13 <- sin(2*pi*1:n*freq13)
+c14 <- cos(2*pi*1:n*freq14)
+s14 <- sin(2*pi*1:n*freq14)
+c15 <- cos(2*pi*1:n*freq15)
+s15 <- sin(2*pi*1:n*freq15)
+
+omega1 <- cbind(c11, s11)
+omega2 <- cbind(c12, s12)
+omega3 <- cbind(c13, s13)
+omega4 <- cbind(c13, s14)
+omega5 <- cbind(c13, s15)
+
+
+```
+
+
+##Descomposición  de la señal
+
+```{r, echo=FALSE}
+
+temp.sum<-merge(Temp=temp.ts, f1=lm(temp.ts~omega1)$fit, f2=lm(temp.ts~omega2)$fit,
+               f3=lm(temp.ts~omega3)$fit)
+
+dygraph(temp.sum,  main="Descomposición de la Señal") %>%
+  dyAxis("y",label = "Temperatura (C)") %>%
+  dyLegend(show = "always", hideOnMouseOut = FALSE)%>%
+  dyHighlight(highlightSeriesOpts = list(strokeWidth = 2))
+```
+
+##Extracción  de la señal
+
+```{r, echo=FALSE}
+temp.aj<-merge(Temp=temp.ts, Filtro2=lm(temp.ts~omega1+omega2)$fit,
+               Filtro3=lm(temp.ts~omega1+omega2+omega3+omega4+omega5)$fit)
+
+dygraph(temp.aj,  main="Temperatura maxima en Liberia (diaria) con filtrado") %>%
+  dyAxis("y",label = "Temperatura (C)") %>%
+  dyLegend(show = "always", hideOnMouseOut = FALSE)%>%
+dyHighlight(highlightSeriesOpts = list(strokeWidth = 2))
+
+```
+
+##Conclusiones
+
+-La serie tiene dos frecuencias importantes, una anual y otra cuatrimestral.
+
+
+
+
+

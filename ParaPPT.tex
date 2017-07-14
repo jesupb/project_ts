@@ -1,0 +1,337 @@
+\documentclass[a4paper,10pt]{article}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage[latin1]{inputenc}
+\usepackage[spanish,english]{babel}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{pifont}
+\usepackage{xy}
+\usepackage[table]{xcolor}
+\usepackage{colortbl}
+\usepackage{url}
+\usepackage{array}
+\usepackage{subfigure}
+\usepackage{multirow}
+\usepackage{color,hyperref}
+\usepackage{multicol}
+\usepackage{mathrsfs}
+\usepackage[left=2cm, right=2.2cm,height=25cm]{geometry}
+\linespread{1.2}
+\usepackage{amsthm}
+\theoremstyle{definition}
+\newtheorem{definition}{Definici\'on}
+
+%comando para paréntesis ajustables
+\newcommand{\bc}[1]{
+\left(#1\right) }
+
+\newcommand{\cbg}[1]{
+\multicolumn{1}{|>{\columncolor[rgb]{0.8, 0.8, 0.8}}c|}{#1} }
+
+\newcommand{\tdots}{
+ \cdot \cdot \cdot
+}
+
+\makeatletter
+\newcommand{\mypm}{\mathbin{\mathpalette\@mypm\relax}}
+\newcommand{\@mypm}[2]{\ooalign{%
+  \raisebox{.1\height}{$#1+$}\cr
+  \smash{\raisebox{-.6\height}{$#1-$}}\cr}}
+\makeatother
+
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\begin{document}
+\renewcommand{\figurename}{Figura}
+\renewcommand{\tablename}{Tabla}
+\renewcommand{\labelenumi}{\Roman{enumi}.}
+\renewcommand{\labelenumii}{\arabic{enumii}$)$}
+\renewcommand{\labelenumiii}{\alph{enumiii}$)$}
+\thispagestyle{fancy}
+\lhead{
+    \textsc{\textbf{UNIVERSIDAD DE COSTA RICA\\
+    Escuela de Matem\'atica\\
+	Profesor: Luis Barboza Chinchilla\\
+	Estudiantes: C\'esar Conejo, Evelyn Guzm\'an\\
+	Jes\'us Pacheco, Mercedes Alpizar}}}
+    
+\rhead{
+    \textsc{\textbf{I CICLO 2017\\
+    MA-0817 Estad\'istica Matem\'atica}
+}}
+
+\begin{center}
+\textbf{Anteproyecto}
+\end{center}
+
+\begin{center}
+{\em Tema: An\'alisis espectral no par\'ametrico}
+\end{center}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\input{Introduccion.tex}
+
+La idea fundamental sobre el que descansa el presente trabajo es partir del hecho de que el concepto de regularidad de una serie de tiempo puede ser mejor expresado en terminos de las variaciones periodicas del fen\'omeno que produce la serie, expresada como frecuencias de Fourier a trav\'es de senos y cosenos. En an\'alisis espectral se centra en el dominio de frecuencias.
+
+La frecuencia est\'a medida en ciclos por unidad de tiempo.
+
+\begin{definition}{Transformada discreta de Fourier (TDF)}
+\\[0.25cm]\noindent Definimos la TDF de $(x_{1}, ..., x_{t})$ como:
+$$d(\omega_j)=n^{-1/2} \sum_{t=1}^n x_t e^{2 \pi i \omega_j t}$$
+\noindent para $j = 0,1,..., n - 1$
+\end{definition}
+
+\begin{definition}{Periodograma}
+\\[0.25cm]\noindent Dados los datos $x_{1}, ..., x_{n}$, se define el periodograma como:
+$$I(\omega_j)= |d(\omega_j)|^2$$
+\noindent para $j = 0,1,..., n - 1$
+\end{definition}
+
+\noindent En este sentido se tienen representaciones {\em backward} y {\em Forward} para desplazarnos entre el an\'alisis temporal (Funci\'on de autocovarianza muestral) y el an\'alisis de frecuencias. De esta forma asumiendo datos centrados tenemos que:
+
+\begin{equation}\label{eq:1}
+I(\omega_j)=\sum_{|h|<n} \hat{\gamma}(h) e^{-2 \pi i \omega_j h}
+\end{equation}
+
+\noindent Donde $I(\omega_j)$ es la versi\'on muestral del poder de espectro $\gamma _{0}f(\omega_j)$.
+
+\begin{center}
+Propiedades asint\'oticas del periodograma
+\end{center}
+
+%%% PROP 1
+\begin{definition}{Propiedad 1}
+\\[0.25cm]\noindent Para muestras grandes el periodograma converge en distribuci\'on a la densidad espectral:
+$$
+E[I(\omega_{j:n})] \leftarrow f(\omega)
+$$
+\end{definition}
+
+%%% PROP 2
+\begin{definition}{Propiedad 2}
+\\[0.25cm]\noindent Dado que $x_t$ es un proceso lineal con par\'ametros $\psi_j$ sumables vale que
+$$
+\frac{2\;I(\omega_{j:n})}{f(\omega_j)} \overset{d}{\leftarrow} \textup{iid} \chi^{2}_{2}
+$$
+\end{definition}
+
+Lo anterior permite derivar intervalos de confianza para los valores calculados del periodograma en cada frecuencia de Fourier.
+
+%% ejm
+\begin{definition}{Ejemplo 1}
+\\[0.25cm]\noindent Ahora se muestra un ejemplo sencillo sobre la distribuci\'on del periodograma del ruido blanco normal.
+
+Se sabe de la definici\'on que $I(\omega) = \hat{\gamma}(0)$.
+
+De igual manera, $f(\omega) = \gamma(0)$, para cualquier $\omega$. %, pues el ruido blanco excita a todas las frecuencias por igual
+
+Se estudiar\'a la distribuci\'on de $\frac{2\;I(\omega)}{f(\omega)}$, para $\omega$ fijo.
+
+Si se denota la parte real de la transformaci\'on de Fourier por $d_c(\omega)$ y la parte imaginaria por $d_s(\omega)$, entonces vale que 
+
+$$
+d(\omega) = d_c(\omega) + i\;d_s(\omega)
+$$
+
+$$
+|d(\omega)|^2 = (d_{c}(\omega))^{2} + (d_{s}(\omega))^2
+$$
+
+En el caso del ruido blanco normal, se tiene que como  
+
+$$
+d_c(\omega) = n^{-1/2} \sum_{t} x_t \cos(2\pi \omega t)
+$$
+
+y cada $x_t$ es normal, $d_c(\omega)$ es combinaci\'on lineal de normales, por lo que es tambi\'en normal con media $0$ y varianza $gamma(0) / 2$. Para $d_s(\omega)$ vale un resultado an\'alogo.
+
+De esta manera, las variables
+
+$$
+\frac{2\;(d_c(\omega))^2}{\gamma(0)}
+$$
+
+y
+
+$$
+\frac{2\;(d_s^(\omega))^2}{\gamma(0)}
+$$
+
+tienen distribuci\'on chi cuadrado con un grado de libertad, por lo que su suma (\textit{i.e.} $\frac{2}{\gamma(0)}|d(\omega)|^2$) distribuye chi cuadrado con 2 grados de libertad.
+
+De lo anterior se deduce que 
+
+$$
+2 \frac{I(\omega)}{f(\omega)} 
+$$
+
+tiene distribuci\'on chi cuadrado con 2 grados de libertad, por lo que se tiene
+
+$$
+E\left[ 2 \frac{I(\omega)}{f(\omega)}  \right] = 2 \longrightarrow E[I(\omega)] = f(\omega)
+$$
+
+y adem\'as
+
+$$
+var\left(2 \frac{I(\omega)}{f(\omega)}\right) = 4 \longrightarrow var(I(\omega)) = f^2(\omega)
+$$
+
+De este segundo resultado se puede identificar que para este ejemplo el estimador $I(\omega)$ de $f(\omega)$ es insesgado, pero \textit{no es un estimador consistente}, pues su varianza no importa el tamaño de muestra, por lo que la estimaci\'on de $f(\omega)$ nunca va a mejorar por m\'as observaciones que se incluyan.
+
+Lo anterior se debe a que conforme aumenta el tamaño de muestra, tambi\'en la cantidad de frecuencias de Fourier aumenta, por lo que la informaci\'on que se agrega al modelo mediante un tamaño de muestra mayor queda "diluida" ante la mayor cantidad de par\'ametros que se deben calcular para cada frecuencia.
+
+Esta observaci\'on  respecto a la inconsistencia de $I(\omega)$ es la motivaci\'on para explorar los m\'etodos de la secci\'on siguiente.
+
+\end{definition}
+
+%% ejm 2
+\begin{definition}{Ejemplo sobre intervalos de confianza}
+\\[0.25cm]\noindent PENDIENTE
+\end{definition}
+
+%%%
+\section{Suavizamiento del estimador de densidad espectral}
+
+Como se vio en la secci\'on anterior, el estimador $I(\omega)$ de la densidad espectral no es consistente, por lo que muestra alta variabilidad. Para evitar esto, existen t\'ecnicas que disminuyen esa variabilidad bajo el costo de aumentar el sesgo del estimador.
+
+En esta secci\'on se muestra con detalle c\'omo se logra esto mediante el suavizador de \textit{Daniell}, y se exploran en la pr\'actica otras t\'ecnicas como los \textit{kernels} de Daniell modificado, Dirichlet y Fejer.
+
+\subsection{Idea general}
+
+La idea general de los suavizadores consiste en ponderar las frecuencias alrededor de una frecuencia meta. El grado del suavizamiento depende entonces de dos aspectos principales:
+
+\begin{itemize}
+\item[$\bullet$] La cantidad $L = 2m+1$ de frecuencias circundantes utilizadas para generar el estimador suavizado.
+\item[$\bullet$] Los pesos asignados a las frecuencias circundantes.
+\end{itemize}
+
+Los diferentes m\'etodos difieren b\'asicamente en la forma en que se asignan esos pesos.
+
+\begin{definition}{Spectral window} % traduccion de esta wea??
+\\[0.25cm]\noindent Una \textit{spectral window} es una funci\'on $W_m(\cdot)$ sobre las densidades de Fourier tal que 
+$$
+\left\{\begin{matrix}
+W_m(k) \geq 0\\ 
+W_m(k) = W_m(-k)\\ 
+\sum_{k = -m}^{m} W_m(k) = 1
+\end{matrix}\right.
+$$
+\end{definition}
+
+Bajo este concepto se puede describir cualquier m\'etodo de suavizamiento mediante
+
+\begin{equation}\label{eq:suav}
+\bar{f}(\omega) = \sum_{k = -m}^{m} W_m(k) I(\omega + k/n)
+\end{equation}
+
+Existe literatura en la que la descripci\'on anterior se hace en funci\'on de \textit{bandas}, de forma que se define una banda $B$ con $L$ elementos mediante
+
+$$
+B = \{\omega^{*}: \omega_j - m/n \leq \omega^{*} \leq \omega_j + m/n\}
+$$
+
+y se define su \textit{ancho de banda} por $B_w  = L/n$.
+
+Bajo el esquema anterior, se define el suavizador de \textit{Daniell}:
+
+\begin{definition}{Suavizador de \textit{Daniell}}
+\\[0.25cm]\noindent El suavizador de Daniell est\'a descrito por
+$$W_m(k) = \frac{1}{2m+1} = 1/L$$
+\end{definition}
+
+Ahora se detalla en la manera en que el suavizamiento contribuye a crear un estimador consistente a cambio de incorporar algo de sesgo:
+
+En primer lugar, se tiene que a partir de los resultados asint\'oticos de la secci\'on anterior y aproximando por Taylor:
+\begin{eqnarray*}
+E[\bar{f}(\omega)] & \approx & \sum_{k = -m}^{m} W_m(k) f(\omega + k/n) \\
+ & \approx & \sum_{k = -m}^{m} W_m(k) [f(\omega) + \frac{k}{n} f'(\omega) + \frac{1}{2}\left(\frac{k}{n}\right)^2 f''(\omega)
+\end{eqnarray*}
+
+Por la simetr\'ia de los pesos $W_m(k)$ se cancelan los t\'erminos asociados a $f'$ y resulta
+
+$$
+E[\bar{f}(\omega)] \approx f(\omega) + \frac{1}{n^2} \frac{f''(\omega)}{2} \sum_{k = -m}^{m} k^2 W_m(k)
+$$
+
+por lo que el sesgo del estimador est\'a dado aproximadamente por
+
+$$
+\frac{1}{n^2} \frac{f''(\omega)}{2} \sum_{k = -m}^{m} k^2 W_m(k)
+$$
+
+Note que para el caso de Daniell, esto es proporcional a
+
+$$
+\frac{1}{n^2} \sum_{k = -m}^{m} k^2 W_m(k) = \frac{1}{n^2} \sum_{k = -m}^{m} \frac{k^2}{2m+1} = \frac{2}{n^2(2m+1)} \left( \frac{m^3}{3} + \frac{m^2}{2} + \frac{m}{6} \right)
+$$
+
+que tiende a 0 en tanto $n \rightarrow \infty$ y $m/n \rightarrow 0$.
+
+Por el otro lado, para la varianza se tiene la aproximaci\'on
+
+$$
+var(\bar{f}(\omega) \approx \sum_{k = -m}^{m} W_m^{2}(k) f^{2}(\omega)
+$$
+
+y en el caso de Daniell se tiene que como los pesos son uniformes, entonces
+
+$$
+\sum_{k = -m}^{m} W_m^{2}(k) = \frac{1}{2m+1}
+$$
+
+Note que esto tiende a 0 en tanto $m \rightarrow \infty$.
+
+En resumen, para disminuir la varianza se requiere utilizar cada vez m\'as observaciones para el suavizamiento, y para mantener el sesgo controlado se requiere que $m$ sea peque\~no respecto a $n$.
+
+
+\subsection{Otros m\'etodos de suavizamiento}
+
+Una forma alternativa de describir los m\'etodos de suavizamiento es utilizando conocimiento respecto a la funci\'on de autocovarianza de la serie. 
+
+Partiendo \ref{ref:suav} y utilizando \ref{eq:1} se tiene 
+
+\begin{eqnarray*}
+\bar{f}(\omega) & = & \sum_{k = -m}^{m} W_m(k) I(\omega + k/n)\\
+ & = & \sum_{k = -m}^{m} W_m(k) 
+ \left[
+ \sum_{h = -n+1}^{n-1} \hat{\gamma}(h) e^{-2 \pi i (\omega_j + \frac{k}{n}) h}
+ \right]\\
+ & = & \sum_{h = -n+1}^{n-1} \hat{\gamma}(h) 
+ \left[
+ \sum_{k = -m}^{m} W_m(k) e^{-2 \pi i  \;\frac{k}{n} \;h}
+ \right] e^{-2 \pi i \omega_j h}\\
+\end{eqnarray*}
+
+A partir de lo anterior, se define la funci\'on \textit{lag window} por
+
+\begin{equation}\label{eq:lag_win}
+w(x) = \sum_{k = -m}^{m} W_m(k) e^{-2 \pi i k \;x}
+\end{equation}
+
+Note que $w(x)$ satisface las siguientes propiedades:
+
+$$
+\left\{\begin{matrix}
+w(x) &=& w(-x) & &\\ 
+w(0) &=& 1 & &\\ 
+w(x) &\leq& 1 & & \textup{si }|x|\leq 1
+\end{matrix}\right.
+$$
+
+
+Se mencionaran unos cu\'antos m\'etodos adicionales usuales en la literatura y de uso com\'un en las implementaciones de \textit{software}:
+
+\begin{itemize}
+\item[$\bullet$] \textbf{Daniell modificado: } Consiste en 
+\item[$\bullet$] \textbf{Dirichlet: }
+La funci\'on \textit{lag window}  est\'a dada por $w(x) = 1$, para $|x| \leq 1$.
+\item[$\bullet$] \textbf{Fejer: }
+La funci\'on \textit{lag window}  est\'a dada por $w(x) = 1$, para $|x| \leq 1$.
+\end{itemize}
+
+\end{document}
